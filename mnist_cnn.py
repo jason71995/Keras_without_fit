@@ -28,13 +28,15 @@ def build_functions(input_shape, num_classes, model):
     loss = K.mean(K.categorical_crossentropy(y_true, y_pred))
     acc  = K.mean(K.cast(K.equal(K.argmax(y_true, axis=-1), K.argmax(y_pred, axis=-1)), K.floatx()))
 
-    # get updates of untrainable updates. e.g. mean and variance in BatchNormalization
+    # get updates of untrainable updates. 
+    # e.g. mean and variance in BatchNormalization
     untrainable_updates = model.get_updates_for([images])
 
     # get updates of trainable updates.
     trainable_updates = Adam(lr=0.0001).get_updates(loss, model.trainable_weights)
 
-    # K.learning_phase() is needed when model has different behavior during train and test. e.g. BatchNormalization, Dropout
+    # K.learning_phase() is required if model has different behavior during train and test. 
+    # e.g. BatchNormalization, Dropout
     train_func = K.function([images, y_true, K.learning_phase()], [loss, acc], untrainable_updates + trainable_updates)
     test_func  = K.function([images, y_true, K.learning_phase()], [loss, acc])
 
